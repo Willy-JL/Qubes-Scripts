@@ -2,12 +2,17 @@
 set -e
 
 path="$(mktemp --suffix .png)"
-file="$(basename "$path")"
+declare -a file
+file[0]="/home/user/QubesIncoming/dom0/$(basename "$path")"
 flameshot gui --raw > "$path"
 qubes="$(qvm-ls --raw-list | grep -v -e '-dvm$'  -e '^sys-' -e '^archlinux-' -e '^debian-' -e '^fedora-' -e '^whonix-')"
-qube="$(zenity --list --modal --width 150 --height 350 --title 'Screenshot' --text 'Select destination:' --column 'Qube' $qubes)"
+qube="$(zenity --list --modal --width 150 --height 350 --title 'Flameshot' --text 'Select destination:' --column 'Qube' $qubes)"
 qvm-copy-to-vm "$qube" "$path"
-qvm-run --pass-io "$qube" "xclip -selection clipboard -target image/png -in \"/home/user/QubesIncoming/dom0/$file\" && rm \"/home/user/QubesIncoming/dom0/$file\"" &
+cmd='xclip -selection clipboard -target image/png -in '
+cmd+="${file[@]@Q}"
+cmd+=' && rm '
+cmd+="${file[@]@Q}"
+qvm-run --pass-io "$qube" "$cmd" &
 pid="$!"
 rm "$path"
 sleep 2
