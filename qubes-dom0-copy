@@ -1,8 +1,7 @@
 #!/bin/bash
 set -e
 
-qubes="$(qvm-ls --raw-list | grep -v -e '-dvm$'  -e '^sys-' -e '^archlinux-' -e '^debian-' -e '^fedora-' -e '^whonix-')"
-qube="$(zenity --list --modal --width 150 --height 350 --title 'Dom0 copy' --text 'Select source:' --column 'Qube' $qubes)"
+qube="$(qubes-select-qube 'Dom0 copy' 'Select source:')"
 paths="$(qvm-run --pass-io "$qube" 'yad --title "Dom0 import" --file --multiple --separator \\n 2>/dev/null')"
 
 declare -a files

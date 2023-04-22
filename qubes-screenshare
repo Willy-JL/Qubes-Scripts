@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
 
-qubes="$(qvm-ls --raw-list | grep -v -e '-dvm$'  -e '^sys-' -e '^archlinux-' -e '^debian-' -e '^fedora-' -e '^whonix-')"
-qube="$(zenity --list --modal --width 150 --height 350 --title 'Screenshare' --text 'Select destination:' --column 'Qube' $qubes)"
+qube="$(qubes-select-qube 'Screenshare' 'Select destination:')"
 qvm-run --pass-io "$qube" "qubes-video-companion screenshare 2>&1 | while read ; do exit ; done"
