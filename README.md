@@ -5,7 +5,7 @@ Collection of custom scripts for Qubes OS
 Just drop the scripts you want in `/usr/local/bin` on dom0 ([how to copy files to dom0](https://www.qubes-os.org/doc/how-to-copy-from-dom0/#copying-to-dom0))
 
 ### Explanation / Usage:
-- `qubes-dom0-import`: **import files to dom0 from other vms**; run the script, select the qube, then the files, and they will appear in the current directory on dom0
+- `qubes-dom0-copy/move`: **import files to dom0 from other vms**; run the script, select the qube, then the files, and they will appear in the current directory on dom0 (and deleted on the source vm if moving)
 - `qubes-flameshot`: **screenshot with flameshot and copy to qube clipboard**; run the script, make the screenshot, select target qube, paste to your heart's content
 - `qubes-screenshare`: **quickly start a video companion screenshare session**; run the script, select destination qube, then source qube, do what you need, then stop screensharing with the tray icon
 
@@ -24,7 +24,8 @@ For dom0:
 sudo qubes-dom0-update \
     flameshot \
     qubes-video-companion-sender \
-    zenity
+    zenity \
+    yad
 ```
 
 ### Disclaimer:
