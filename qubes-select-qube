@@ -1,6 +1,19 @@
 #!/bin/bash
 set -e
 
-qubes="$(qvm-ls --raw-list | grep -v -e '-dvm$'  -e '^sys-' -e '^archlinux-' -e '^debian-' -e '^fedora-' -e '^whonix-')"
-qubes="$(python3 -c "import sys, qubesadmin ; qubes = qubesadmin.Qubes().domains ; print('\n'.join(f'{qubes[qube].icon} {qube}' for qube in sys.argv[1:] if qube in qubes))" $qubes)"
-echo -n "$(yad --list --modal --no-headers --width 150 --height 350 --title "${1:-Qubes}" --text "${2:-Select qube:}" --column ':IMG' --column '' $qubes | cut -d '|' -f 2)"
+title="${1:-Qubes}"
+text="${2:-Select qube:}"
+
+qubes="$(python3 -c """
+import sys
+import qubesadmin
+qubes = qubesadmin.Qubes()
+for qube in qubes.domains:
+    if qube.klass not in ('AppVM', 'StandaloneVM'):
+        continue
+    if qube.name.startswith('sys-') or qube.name.endswith('-dvm'):
+        continue
+    print(f'{qube.icon} {qube.name}')
+""")"
+
+echo -n "$(yad --list --modal --no-headers --width 150 --height 350 --title "$title" --text "$text" --column ':IMG' --column '' $qubes | cut -d '|' -f 2)"
