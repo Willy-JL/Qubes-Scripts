@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+qube="$(xprop _QUBES_VMNAME -id "$(xdotool getwindowfocus)" | cut -d \" -f 2)"
+if [ "$qube" = "_QUBES_VMNAME:  not found." ] ; then
+    exec "$@"
+else
+    qvm-run "$qube" "$@"
+fi
