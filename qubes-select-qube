@@ -11,9 +11,11 @@ qubes = qubesadmin.Qubes()
 for qube in qubes.domains:
     if qube.klass not in ('AppVM', 'StandaloneVM'):
         continue
-    if qube.name.startswith('sys-') or qube.name.endswith('-dvm'):
+    if getattr(qube, 'template_for_dispvms', False):
+        continue
+    if 'servicevm' in qube.features:
         continue
     print(f'{qube.icon} {qube.name}')
 """)"
 
-echo -n "$(yad --list --modal --no-headers --width 150 --height 350 --title "$title" --text "$text" --column ':IMG' --column '' $qubes | cut -d '|' -f 2)"
+echo -n "$(yad --list --on-top --no-headers --width 150 --height 300 --title "$title" --text "$text" --column ':IMG' --column '' $qubes | cut -d '|' -f 2)"
