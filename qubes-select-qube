@@ -7,14 +7,15 @@ text="${2:-Select qube:}"
 qubes="$(python3 -c """
 import sys
 import qubesadmin
-qubes = qubesadmin.Qubes()
-for qube in qubes.domains:
+def is_system_qube(qube):
     if qube.klass not in ('AppVM', 'StandaloneVM'):
-        continue
+        return True
     if getattr(qube, 'template_for_dispvms', False):
-        continue
+        return True
     if 'servicevm' in qube.features:
-        continue
+        return True
+    return False
+for qube in sorted(qubesadmin.Qubes().domains, key=is_system_qube):
     print(f'{qube.icon} {qube.name}')
 """)"
 
