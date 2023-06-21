@@ -1,0 +1,58 @@
+#!/bin/bash
+set -e
+
+name="$(echo "$1" | tr - _ | tr ' ' _)"
+color="$2"
+if [ "$name" = "" ] || [ "$color" = "" ] ; then
+    echo "Usage: $(basename "$0") color_name color_value"
+    echo "Example: $(basename "$0") pink FABFD4"
+    exit
+fi
+echo "Adding color '$name' #$color..."
+
+echo -n "Create label: "
+qubesd-query dom0 admin.label.Create dom0 "$name" <<< "0x$color" --fail
+echo ", OK"
+
+cd /usr/share/icons/hicolor/
+
+echo "Creating svg icons..."
+for type in scalable/apps/[a-z]*vm-orange.svg ; do
+    if [ -e $type ] ; then
+        file=$(echo $type | cut -d '-' -f 1)-$name.svg
+        cp $type $file
+        for old in $(sed -nr 's/^.*(fill|stop-color)="#([A-Fa-f0-9]{6})".*$/\2/p' $file | sort | uniq ); do
+            new=$(python3 -c """
+import colorsys
+old = '$old'
+color = '$color'
+_h, _s, _v = colorsys.rgb_to_hsv(*[int(old[i:i+2], 16) / 255 for i in (0, 2, 4)])
+h, s, v = colorsys.rgb_to_hsv(*[int(color[i:i+2], 16) / 255 for i in (0, 2, 4)])
+print('{:02x}{:02x}{:02x}'.format(*[int(x * 255) for x in colorsys.hsv_to_rgb(h, s*_s, v*_v)]), end='')
+            """)
+            sed -r "s/#$old/#$new/g" $file -i
+        done
+    fi
+done
+
+echo "Creating png icons..."
+for size in [0-9]*x[0-9]* ; do
+    for type in $size/devices/[a-z]*vm-orange.png ; do
+        if [ -e $type ] ; then
+            file=$(echo $type | cut -d '-' -f 1)-$name.png
+            svg=scalable/apps/$(basename $type | cut -d '-' -f 1)-$name.svg
+            if [ -e $svg ] ; then
+                svgres=$(sed -nr "s/^.*viewBox=\"([0-9 ]*)\".*$/\1/p" $svg | cut -d ' ' -f 4)
+                pngres=$(echo $size | cut -d 'x' -f 2)
+                if [ $pngres -gt $svgres ] ; then
+                    density="-density $(($pngres / $svgres * 2 * 72))"
+                fi
+                convert $density -resize $size -background none $svg $file
+            else
+                convert $type -colorspace gray -fill "#$color" -tint 100 $file
+            fi
+        fi
+    done
+done
+
+echo "Done!"

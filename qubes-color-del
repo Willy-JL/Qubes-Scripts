@@ -1,0 +1,34 @@
+#!/bin/bash
+set -e
+
+name="$(echo "$1" | tr - _ | tr ' ' _)"
+if [ "$name" = "" ] ; then
+    echo "Usage: $(basename "$0") color_name"
+    echo "Example: $(basename "$0") pink"
+    exit
+fi
+echo "Removing color '$name'..."
+
+cd /usr/share/icons/hicolor/
+
+echo "Removing svg icons..."
+for type in scalable/apps/[a-z]*vm-$name.svg ; do
+    if [ -e $type ] ; then
+        rm $type
+    fi
+done
+
+echo "Removing png icons..."
+for size in [0-9]*x[0-9]* ; do
+    for type in $size/devices/[a-z]*vm-$name.png ; do
+        if [ -e $type ] ; then
+            rm $type
+        fi
+    done
+done
+
+echo -n "Remove label: "
+qubesd-query dom0 admin.label.Remove dom0 "$name" --empty --fail
+echo ", OK"
+
+echo "Done!"
