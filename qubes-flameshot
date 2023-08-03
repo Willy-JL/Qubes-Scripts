@@ -2,17 +2,7 @@
 set -e
 
 path="$(mktemp --suffix .png)"
-declare -a file
-file[0]="/home/user/QubesIncoming/dom0/$(basename "$path")"
 flameshot gui --raw > "$path"
 qube="$(qubes-select-qube 'Flameshot' 'Select destination:')"
-qvm-copy-to-vm "$qube" "$path"
-cmd='xclip -selection clipboard -target image/png -in '
-cmd+="${file[@]@Q}"
-cmd+=' && rm '
-cmd+="${file[@]@Q}"
-qvm-run --pass-io "$qube" "$cmd" &
-pid="$!"
+cat "$path" | qvm-run --pass-io "$qube" "cat | xclip -selection clipboard -target image/png -in"
 rm "$path"
-sleep 2
-kill "$pid"
