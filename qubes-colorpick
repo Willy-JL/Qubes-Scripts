@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+
+gpick -so --no-newline > /var/run/qubes/qubes-clipboard.bin
+echo -n "dom0" > /var/run/qubes/qubes-clipboard.bin.source
