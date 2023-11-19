@@ -4,7 +4,7 @@ Collection of custom scripts for Qubes OS
 ### Installation:
 
 Install this in dom0:
-`sudo qubes-dom0-update flameshot gpick `
+`sudo qubes-dom0-update flameshot gpick yad`
 
 Just drop the scripts you want in `/usr/local/bin` on dom0 ([how to copy files to dom0](https://www.qubes-os.org/doc/how-to-copy-from-dom0/#copying-to-dom0))
 
