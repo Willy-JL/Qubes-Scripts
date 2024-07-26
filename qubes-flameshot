@@ -1,8 +1,11 @@
 #!/bin/bash
-set -e
 
 path="$(mktemp --suffix .png)"
 flameshot gui --raw > "$path"
+if [ "$(du -b $path | cut -f1)" = "0" ] ; then
+    rm "$path"
+    exit 1
+fi
 qube="$(qubes-select-qube 'Flameshot' 'Select destination:')"
 cat "$path" | qvm-run --pass-io "$qube" "cat | xclip -selection clipboard -target image/png -in"
 rm "$path"
